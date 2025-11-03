@@ -11,20 +11,14 @@ public class BuzonCuarentena {
     }
 
     public void depositar(Mensaje mensaje) {
-        while (true) {
-            try {
-                mensaje.setTiempoCuarentena(random.nextInt(10001) + 10000); // Entre 10000 y 20000
-                synchronized(this) {
-                    mensajes.add(mensaje);
-                    System.out.println("Cuarentena recibe mensaje: " + mensaje);
-                    return;
-                }
-            } catch (Exception e) {
-                System.out.println("[BuzonCuarentena] ⚠️ Error al depositar mensaje, reintentando...");
-                Thread.yield(); // Espera semi-activa si hay algún problema
-            }
+        mensaje.setTiempoCuarentena(new Random().nextInt(11) + 10);
+        synchronized (this) {
+            mensajes.add(mensaje);
+            System.out.println("Cuarentena recibe: " + mensaje);
+            notifyAll();
         }
     }
+    
 
     public synchronized Mensaje[] obtenerMensajes() {
         return mensajes.toArray(new Mensaje[0]);

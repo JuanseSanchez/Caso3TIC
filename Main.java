@@ -13,6 +13,7 @@ public class Main {
             // Crear buzones
             BuzonEntrada buzonEntrada = new BuzonEntrada(capacidadBuzonEntrada);
             BuzonEntrega buzonEntrega = new BuzonEntrega(capacidadBuzonEntrega);
+            buzonEntrega.setNumServidores(numServidores);
             BuzonCuarentena buzonCuarentena = new BuzonCuarentena();
 
             // Crear y comenzar manejador de cuarentena

@@ -30,10 +30,12 @@ public class FiltroSpam extends Thread {
         return mensajesFinRecibidos == clientesRegistrados && !finEnviado;
     }
 
-    private static synchronized void marcarFinEnviado() {
+    private static synchronized boolean marcarFinEnviado() {
         if (!finEnviado) {
             finEnviado = true;
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -51,13 +53,16 @@ public class FiltroSpam extends Thread {
 
                 if (mensaje.isFin()) {
                     System.out.println("Filtro detecta FIN de cliente " + mensaje.getClienteId());
-                    if (registrarMensajeFin() && buzonEntrada.estaVacio() && buzonCuarentena.estaVacio()) {
+                    boolean alcanceTotal = registrarMensajeFin();
+                    System.out.println("Filtro " + id + " - FINs: " + mensajesFinRecibidos + "/" + clientesRegistrados);
+                    if (alcanceTotal && buzonEntrada.estaVacio() && marcarFinEnviado()) {
                         System.out.println("[Filtro " + id + "]  Enviando mensaje FIN al sistema");
-                        marcarFinEnviado();
-                        buzonEntrega.depositar(Mensaje.crearMensajeFin(-1));
+                        buzonEntrega.broadcastFin();
                         buzonCuarentena.depositar(Mensaje.crearMensajeFin(-1));
                         System.out.println("[Filtro " + id + "]  Ha terminado su ejecución");
-                        break;
+                        if (finEnviado && buzonEntrada.estaVacio() && buzonCuarentena.estaVacio()) {
+                            break;
+                        }
                     }
                     System.out.println("Filtro " + id + " - Mensajes FIN recibidos: " + mensajesFinRecibidos + "/" + clientesRegistrados);
                     continue;

@@ -17,14 +17,15 @@ public class ManejadorCuarentena extends Thread {
     public void run() {
         long ultimaEjecucion = System.currentTimeMillis();
         while (ejecutando) {
-            long tiempoActual = System.currentTimeMillis();
-            if (tiempoActual - ultimaEjecucion >= 1000) { // Ejecutar cada segundo
-                ultimaEjecucion = tiempoActual;
-                
-                Mensaje[] mensajes = buzonCuarentena.obtenerMensajes();
+            try {
+                Thread.sleep(1000); 
+            } catch (InterruptedException e) {}
+
+            Mensaje[] mensajes = buzonCuarentena.obtenerMensajes();
                 for (Mensaje mensaje : mensajes) {
                     System.out.println("ManejadorCuarentena revisa mensaje: " + mensaje);
                     if (mensaje.isFin()) {
+                        buzonCuarentena.removerMensaje(mensaje);
                         ejecutando = false;
                         break;
                     }
@@ -35,25 +36,15 @@ public class ManejadorCuarentena extends Thread {
                         int numeroAleatorio = random.nextInt(21) + 1;
                         
                         if (numeroAleatorio % 7 != 0) {
-                            while (true) { // Espera semi-activa para depositar en entrega
-                                try {
-                                    System.out.println("ManejadorCuarentena libera mensaje a Entrega: " + mensaje);
-                                    buzonEntrega.depositar(mensaje);
-                                    break;
-                                } catch (Exception e) {
-                                    Thread.yield();
-                                }
-                            }
+                            buzonEntrega.depositar(mensaje);
                         } else {
                             System.out.println("ManejadorCuarentena descarta mensaje: " + mensaje);
                         }
-                        
                         buzonCuarentena.removerMensaje(mensaje);
                     }
                 }
             }
-            Thread.yield(); // Espera semi-activa entre revisiones
+            System.out.println("Manejador de cuarentena terminó");
         }
-        System.out.println("Manejador de cuarentena terminó");
+        
     }
-}

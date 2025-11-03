@@ -14,27 +14,32 @@ public class ServidorEntrega extends Thread {
     }
 
     @Override
-    public void run() {
-        System.out.println("Servidor " + id + " iniciado");
-        while (true) {
-            // Espera activa para leer mensajes
-            Mensaje mensaje = null;
-            while (mensaje == null) { // Bucle de espera activa
-                mensaje = buzonEntrega.retirar();
-                System.out.println("Servidor procesa mensaje: " + mensaje);
-            }
+public void run() {
+    System.out.println("Servidor " + id + " iniciado");
+    while (true) {
+        Mensaje mensaje = buzonEntrega.retirar(); //puede ser null
 
-            if (mensaje.isInicio()) {
-                System.out.println("Servidor " + id + " recibió INICIO");
-                esperandoInicio = false;
-                continue;
-            }
-
-            if (mensaje.isFin()) {
-                System.out.println("Servidor " + id + " recibió FIN");
-                System.out.println("Servidor " + id + " ha terminado su ejecución");
-                break;
-            }
+        if (mensaje == null) {        
+            try { Thread.sleep(10); } catch (InterruptedException e) {}
+            continue;
         }
+
+        if (mensaje.isInicio()) {      //marca que ya empezó
+            System.out.println("Servidor " + id + " vio INICIO");
+            continue;
+        }
+
+        if (mensaje.isFin()) {        
+            System.out.println("Servidor " + id + " vio FIN");
+            break;
+        }
+
+        
+        try { 
+            Thread.sleep(50 + new Random().nextInt(151)); 
+        } catch (InterruptedException e) {}
     }
+    System.out.println("Servidor " + id + " terminó");
+}
+
 }
