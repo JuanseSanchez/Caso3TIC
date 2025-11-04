@@ -1,14 +1,25 @@
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class Main {
     public static void main(String[] args) {
         // Configuración del sistema
-        int numClientes = 2;
-        int numMensajesPorCliente = 2;
-        int numFiltros = 2;
-        int numServidores = 2;
-        int capacidadBuzonEntrada = 10;
-        int capacidadBuzonEntrega = 20;
+        Properties props = new Properties();
+        try (FileInputStream in = new FileInputStream("config.properties")) {
+            props.load(in);
+        } catch (IOException e) {
+            System.out.println("No se pudo cargar config.properties, usando valores por defecto");
+        }
+
+        // Leer valores del archivo
+        int numClientes = Integer.parseInt(props.getProperty("numClientes", "2"));
+        int numMensajesPorCliente = Integer.parseInt(props.getProperty("numMensajesPorCliente", "3"));
+        int numFiltros = Integer.parseInt(props.getProperty("numFiltros", "1"));
+        int numServidores = Integer.parseInt(props.getProperty("numServidores", "2"));
+        int capacidadBuzonEntrada = Integer.parseInt(props.getProperty("capacidadBuzonEntrada", "10"));
+        int capacidadBuzonEntrega = Integer.parseInt(props.getProperty("capacidadBuzonEntrega", "20"));
 
             // Crear buzones
             BuzonEntrada buzonEntrada = new BuzonEntrada(capacidadBuzonEntrada);
